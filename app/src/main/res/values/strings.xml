@@ -9,4 +9,12 @@
 
     <string name="hello_first_fragment">Hello first fragment</string>
     <string name="hello_second_fragment">Hello second fragment. Arg: %1$s</string>
+    <string name="LocationImage">LocationImage</string>
+    <string name="sunday">Sun</string>
+    <string name="monday">Mon</string>
+    <string name="Tuesday">Tue</string>
+    <string name="wednesday">Wed</string>
+    <string name="thursday">Thr</string>
+    <string name="friday">Fri</string>
+    <string name="saturday">Sat</string>
 </resources>
