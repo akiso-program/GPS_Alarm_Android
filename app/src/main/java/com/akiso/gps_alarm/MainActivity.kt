@@ -1,16 +1,15 @@
 package com.akiso.gps_alarm
 
 import android.os.Bundle
-import com.google.android.material.snackbar.Snackbar
+import android.view.Menu
+import android.view.MenuItem
 import androidx.appcompat.app.AppCompatActivity
-import androidx.navigation.findNavController
+import androidx.navigation.fragment.findNavController
 import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.ui.navigateUp
 import androidx.navigation.ui.setupActionBarWithNavController
-import android.view.Menu
-import android.view.MenuItem
-import androidx.navigation.fragment.findNavController
 import com.akiso.gps_alarm.databinding.ActivityMainBinding
+
 
 class MainActivity : AppCompatActivity() {
 
@@ -29,10 +28,14 @@ class MainActivity : AppCompatActivity() {
         appBarConfiguration = AppBarConfiguration(navController.graph)
         setupActionBarWithNavController(navController, appBarConfiguration)
 
-        binding.fab.setOnClickListener { view ->
-            Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-                .setAction("Action", null).show()
-        }
+        //binding.fab.setOnClickListener { view ->
+         //   Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
+         //       .setAction("Action", null).show()
+
+            //binding.buttonSecond.setOnClickListener {
+            //    findNavController().navigate(R.id.action_SecondFragment_to_FirstFragment)
+            //}
+        //}
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {

@@ -224,7 +224,7 @@
                 app:layout_constraintTop_toTopOf="parent">
 
                 <ImageView
-                    android:id="@+id/imageView2"
+                    android:id="@+id/locateImageView"
                     android:layout_width="120dp"
                     android:layout_height="120dp"
                     android:contentDescription="@string/LocationImage"

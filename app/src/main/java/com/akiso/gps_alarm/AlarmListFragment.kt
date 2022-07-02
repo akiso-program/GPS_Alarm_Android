@@ -8,6 +8,7 @@ import androidx.recyclerview.widget.RecyclerView
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.navigation.fragment.findNavController
 import com.akiso.gps_alarm.placeholder.PlaceholderContent
 
 /**
@@ -29,7 +30,7 @@ class AlarmListFragment : Fragment() {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?,
     ): View? {
-        val view = inflater.inflate(R.layout.fragment_alarm_list_list, container, false)
+        val view = inflater.inflate(R.layout.fragment_alarm_list, container, false)
 
         // Set the adapter
         if (view is RecyclerView) {
@@ -38,7 +39,17 @@ class AlarmListFragment : Fragment() {
                     columnCount <= 1 -> LinearLayoutManager(context)
                     else -> GridLayoutManager(context, columnCount)
                 }
-                adapter = MyItemRecyclerViewAdapter(PlaceholderContent.ITEMS)
+                val _adapter = MyItemRecyclerViewAdapter(PlaceholderContent.ITEMS)
+                _adapter.setOnBookCellClickListener(
+                    object : MyItemRecyclerViewAdapter.OnBookCellClickListener {
+                        override fun onItemClick(holder: MyItemRecyclerViewAdapter.ViewHolder) {
+
+                            // 画面遷移処理
+                            findNavController().navigate(R.id.action_alarmListFragment_to_mapFragment)
+                        }
+                    }
+                )
+                adapter = _adapter
             }
         }
         return view
