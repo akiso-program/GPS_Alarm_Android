@@ -1,9 +1,10 @@
 package com.akiso.gps_alarm
 
 import com.google.android.gms.maps.model.LatLng
+import kotlinx.serialization.Serializable
 import java.time.LocalTime
-import java.util.*
 
+@Serializable
 data class AlarmData(
     val id: Int,
     val activeTimeStart: LocalTime,

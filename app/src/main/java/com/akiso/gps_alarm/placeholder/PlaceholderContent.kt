@@ -18,7 +18,7 @@ object PlaceholderContent {
      */
     val ITEMS: MutableList<AlarmData> = ArrayList()
 
-    private val COUNT = 3
+    private const val COUNT = 3
 
     init {
         // Add some sample items.
@@ -32,7 +32,7 @@ object PlaceholderContent {
     }
 
     private fun createAlarmData(position: Int): AlarmData {
-        val locations = listOf<LatLng>(
+        val locations = listOf(
             LatLng(35.6817882863765, 139.76703598784582),
             LatLng(34.73375038839483, 135.50033463624678),
             LatLng(33.59201931312273, 130.420219212164),
