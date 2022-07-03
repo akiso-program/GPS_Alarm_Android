@@ -18,4 +18,5 @@
     <string name="friday">Fri</string>
     <string name="saturday">Sat</string>
     <string name="floatingActionButton">FloatingActionButton</string>
+    <string name="save">Save</string>
 </resources>

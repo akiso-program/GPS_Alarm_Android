@@ -22,5 +22,9 @@
         <action
             android:id="@+id/action_mapFragment_to_alarmListFragment"
             app:destination="@id/alarmListFragment" />
+        <argument
+            android:name="AlarmID"
+            app:argType="integer"
+            android:defaultValue="0" />
     </fragment>
 </navigation>

@@ -1,5 +1,6 @@
 package com.akiso.gps_alarm.placeholder
 
+import android.support.v4.os.IResultReceiver
 import com.akiso.gps_alarm.AlarmData
 import com.google.android.gms.maps.model.LatLng
 import java.time.LocalTime
@@ -17,6 +18,13 @@ object PlaceholderContent {
      * An array of sample (placeholder) items.
      */
     val ITEMS: MutableList<AlarmData> = ArrayList()
+    val DEFAULT_DATA = AlarmData(
+        0,
+        LocalTime.of(1, 0),
+        LocalTime.of(2, 0),
+        listOf(Calendar.SUNDAY,Calendar.THURSDAY),
+        LatLng(35.6817882863765, 139.76703598784582)
+    )
 
     private const val COUNT = 3
 
@@ -25,6 +33,12 @@ object PlaceholderContent {
         for (i in 1..COUNT) {
             addItem(createAlarmData(i))
         }
+    }
+    fun getData(id: Int): AlarmData? {
+        ITEMS.forEach{
+            if(it.id == id)return it
+        }
+        return null
     }
 
     private fun addItem(item: AlarmData) {

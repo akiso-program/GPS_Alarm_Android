@@ -8,6 +8,7 @@ import androidx.recyclerview.widget.RecyclerView
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.core.os.bundleOf
 import androidx.navigation.fragment.findNavController
 import com.akiso.gps_alarm.placeholder.PlaceholderContent
 
@@ -42,10 +43,10 @@ class AlarmListFragment : Fragment() {
                 val _adapter = MyItemRecyclerViewAdapter(PlaceholderContent.ITEMS)
                 _adapter.setOnBookCellClickListener(
                     object : MyItemRecyclerViewAdapter.OnBookCellClickListener {
-                        override fun onItemClick(holder: MyItemRecyclerViewAdapter.ViewHolder) {
-
+                        override fun onItemClick(data: AlarmData) {
+                            val params = bundleOf("AlarmID" to data.id )
                             // 画面遷移処理
-                            findNavController().navigate(R.id.action_alarmListFragment_to_mapFragment)
+                            findNavController().navigate(R.id.action_alarmListFragment_to_mapFragment, params)
                         }
                     }
                 )

@@ -6,11 +6,11 @@ import java.time.LocalTime
 
 @Serializable
 data class AlarmData(
-    val id: Int,
-    val activeTimeStart: LocalTime,
-    val activeTimeEnd: LocalTime,
-    val activeDay: List<Int>,
-    val location: LatLng
+    var id: Int,
+    var activeTimeStart: LocalTime,
+    var activeTimeEnd: LocalTime,
+    var activeDay: List<Int>,
+    var location: LatLng
 ){
     override fun toString(): String = id.toString()
 }

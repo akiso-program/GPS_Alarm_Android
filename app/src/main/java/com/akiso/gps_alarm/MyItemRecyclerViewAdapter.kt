@@ -26,7 +26,7 @@ class MyItemRecyclerViewAdapter(
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         val item = values[position]
         (item.activeTimeStart.format(DateTimeFormatter.ofPattern("HH:mm")) + " - " + item.activeTimeEnd.format(DateTimeFormatter.ofPattern("HH:mm"))).also { holder.idView.text = it }
-        holder.locateImage.setOnClickListener{ listener.onItemClick(holder) }
+        holder.locateImage.setOnClickListener{ listener.onItemClick(item) }
     }
 
     override fun getItemCount(): Int = values.size
@@ -35,7 +35,7 @@ class MyItemRecyclerViewAdapter(
 
     // 2. インターフェースを作成
     interface  OnBookCellClickListener {
-        fun onItemClick(holder: ViewHolder)
+        fun onItemClick(data: AlarmData)
     }
 
     // 3. リスナーをセット
