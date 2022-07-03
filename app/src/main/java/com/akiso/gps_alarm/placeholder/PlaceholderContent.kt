@@ -22,7 +22,7 @@ object PlaceholderContent {
         0,
         LocalTime.of(1, 0),
         LocalTime.of(2, 0),
-        listOf(Calendar.SUNDAY,Calendar.THURSDAY),
+        mutableListOf(Calendar.SUNDAY,Calendar.THURSDAY),
         LatLng(35.6817882863765, 139.76703598784582)
     )
 
@@ -55,7 +55,7 @@ object PlaceholderContent {
             position,
             LocalTime.of(1 + position, 0),
             LocalTime.of(2 + position, 0),
-            listOf(Calendar.SUNDAY,Calendar.THURSDAY),
+            mutableListOf(Calendar.SUNDAY,Calendar.THURSDAY),
             locations[position % locations.size]
         )
     }

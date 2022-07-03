@@ -9,7 +9,7 @@ data class AlarmData(
     var id: Int,
     var activeTimeStart: LocalTime,
     var activeTimeEnd: LocalTime,
-    var activeDay: List<Int>,
+    var activeDay: MutableList<Int>,
     var location: LatLng
 ){
     override fun toString(): String = id.toString()

@@ -1,5 +1,6 @@
 package com.akiso.gps_alarm
 
+import android.content.Intent
 import android.os.Bundle
 import android.view.Menu
 import android.view.MenuItem
@@ -28,14 +29,8 @@ class MainActivity : AppCompatActivity() {
         appBarConfiguration = AppBarConfiguration(navController.graph)
         setupActionBarWithNavController(navController, appBarConfiguration)
 
-        //binding.fab.setOnClickListener { view ->
-         //   Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-         //       .setAction("Action", null).show()
-
-            //binding.buttonSecond.setOnClickListener {
-            //    findNavController().navigate(R.id.action_SecondFragment_to_FirstFragment)
-            //}
-        //}
+        val serviceIntent = Intent(this, GpsAlarmService::class.java)
+        startForegroundService(serviceIntent)
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
