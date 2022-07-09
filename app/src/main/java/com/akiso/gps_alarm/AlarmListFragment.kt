@@ -1,22 +1,27 @@
 package com.akiso.gps_alarm
 
+import android.annotation.SuppressLint
+import android.app.AlarmManager
+import android.app.PendingIntent
 import android.app.TimePickerDialog
+import android.content.Context
+import android.content.Context.ALARM_SERVICE
+import android.content.Intent
 import android.os.Bundle
-import androidx.fragment.app.Fragment
-import androidx.recyclerview.widget.GridLayoutManager
-import androidx.recyclerview.widget.LinearLayoutManager
-import androidx.recyclerview.widget.RecyclerView
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.CalendarView
-import android.widget.TimePicker
+import androidx.core.content.ContextCompat.getSystemService
 import androidx.core.os.bundleOf
+import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
+import androidx.recyclerview.widget.GridLayoutManager
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import com.akiso.gps_alarm.placeholder.PlaceholderContent
-import java.text.FieldPosition
 import java.time.LocalTime
 import java.util.*
+
 
 /**
  * A fragment representing a list of Items.
@@ -46,8 +51,8 @@ class AlarmListFragment : Fragment() {
                     columnCount <= 1 -> LinearLayoutManager(context)
                     else -> GridLayoutManager(context, columnCount)
                 }
-                val _adapter = MyItemRecyclerViewAdapter(PlaceholderContent.ITEMS)
-                _adapter.setOnBookCellClickListener(
+                val myAdapter = MyItemRecyclerViewAdapter(PlaceholderContent.ITEMS)
+                myAdapter.setOnBookCellClickListener(
                     object : MyItemRecyclerViewAdapter.OnCellClickListener {
                         override fun onLocationImageClick(data: AlarmData) {
                             val params = bundleOf("AlarmID" to data.id )
@@ -62,7 +67,7 @@ class AlarmListFragment : Fragment() {
                                 requireContext(),
                                 { _, newHour, newMinute ->
                                     data.activeTimeStart = LocalTime.of(newHour,newMinute)
-                                    _adapter.notifyItemChanged(position)
+                                    myAdapter.notifyItemChanged(position)
                                 },
                                 hour,minute,true)
                             dialog.show()
@@ -75,7 +80,7 @@ class AlarmListFragment : Fragment() {
                                 requireContext(),
                                 { _, newHour, newMinute ->
                                     data.activeTimeEnd = LocalTime.of(newHour,newMinute)
-                                    _adapter.notifyItemChanged(position)
+                                    myAdapter.notifyItemChanged(position)
                                 },
                                 hour,minute,true)
                             dialog.show()
@@ -92,16 +97,35 @@ class AlarmListFragment : Fragment() {
                         override fun onAddButtonClick(data: AlarmData) {
                             val params = bundleOf("AlarmID" to data.id )
                             PlaceholderContent.makeData()
-                            _adapter.notifyItemRangeChanged(data.id,2)
+                            myAdapter.notifyItemRangeChanged(data.id,2)
                             // 画面遷移処理
                             findNavController().navigate(R.id.action_alarmListFragment_to_mapFragment, params)
                         }
                     }
                 )
-                adapter = _adapter
+                adapter = myAdapter
             }
         }
+        setAlarmService()
+
         return view
+    }
+
+    @SuppressLint("UnspecifiedImmutableFlag")
+    private fun setAlarmService(){
+        val nextStart = PlaceholderContent.getNextStart(LocalTime.now())
+        nextStart?.also {
+            val serviceIntent = Intent(activity, GpsAlarmStartService::class.java)
+            val pendingIntent = PendingIntent.getActivity(requireContext(),0,serviceIntent,PendingIntent.FLAG_UPDATE_CURRENT)
+            val calendar: Calendar = Calendar.getInstance().apply {
+                set(Calendar.HOUR_OF_DAY, nextStart.hour)
+                set(Calendar.MINUTE, nextStart.minute)
+                set(Calendar.SECOND, 0) //0秒
+                set(Calendar.MILLISECOND, 0) //カンマ0秒
+            }
+            val alarm = requireContext().getSystemService(ALARM_SERVICE) as AlarmManager?
+            alarm?.setExact(AlarmManager.RTC_WAKEUP,calendar.timeInMillis, pendingIntent)
+        }
     }
 
     companion object {

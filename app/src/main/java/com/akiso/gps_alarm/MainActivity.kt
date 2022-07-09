@@ -28,7 +28,6 @@ class MainActivity : AppCompatActivity() {
         val navController = supportFragmentManager.findFragmentById(R.id.nav_host_fragment_content_main)!!.findNavController()
         appBarConfiguration = AppBarConfiguration(navController.graph)
         setupActionBarWithNavController(navController, appBarConfiguration)
-
         val serviceIntent = Intent(this, GpsAlarmService::class.java)
         startForegroundService(serviceIntent)
     }

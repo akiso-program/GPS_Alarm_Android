@@ -3,6 +3,7 @@ package com.akiso.gps_alarm.placeholder
 import android.support.v4.os.IResultReceiver
 import com.akiso.gps_alarm.AlarmData
 import com.google.android.gms.maps.model.LatLng
+import java.time.LocalDate
 import java.time.LocalTime
 import java.util.*
 
@@ -23,7 +24,9 @@ object PlaceholderContent {
         LocalTime.of(1, 0),
         LocalTime.of(2, 0),
         mutableListOf(Calendar.SUNDAY,Calendar.THURSDAY),
-        LatLng(35.6817882863765, 139.76703598784582)
+        LatLng(35.6817882863765, 139.76703598784582),
+        isActive = true,
+        isAlreadyDone = false
     )
 
     private const val COUNT = 3
@@ -38,6 +41,18 @@ object PlaceholderContent {
         val data = ITEMS.elementAtOrNull(id - 1)
         data?.id = id - 1
         return data
+    }
+    fun getActiveData(): List<AlarmData> {
+        val calendar = Calendar.getInstance()
+        return ITEMS.filter {
+            it.isActive(calendar.get(Calendar.DAY_OF_WEEK)) && it.isActive(LocalTime.now())
+        }
+    }
+
+    fun getNextStart(now: LocalTime):LocalTime?{
+        return ITEMS.filter { it.isActive && now < it.activeTimeStart }
+            .minByOrNull { it.activeTimeStart }
+            ?.activeTimeStart
     }
 
     fun makeData(){
@@ -60,7 +75,9 @@ object PlaceholderContent {
             LocalTime.of(1 + position, 0),
             LocalTime.of(2 + position, 0),
             mutableListOf(Calendar.SUNDAY,Calendar.THURSDAY),
-            locations[position % locations.size]
+            locations[position % locations.size],
+            isActive = true,
+            isAlreadyDone = false
         )
     }
 
