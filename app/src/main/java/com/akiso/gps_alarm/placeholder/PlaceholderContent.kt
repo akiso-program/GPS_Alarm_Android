@@ -35,10 +35,14 @@ object PlaceholderContent {
         }
     }
     fun getData(id: Int): AlarmData? {
-        ITEMS.forEach{
-            if(it.id == id)return it
-        }
-        return null
+        val data = ITEMS.elementAtOrNull(id - 1)
+        data?.id = id - 1
+        return data
+    }
+
+    fun makeData(){
+        val data = createAlarmData(ITEMS.size + 1)
+        addItem(data)
     }
 
     private fun addItem(item: AlarmData) {

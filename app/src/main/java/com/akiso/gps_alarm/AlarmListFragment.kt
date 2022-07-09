@@ -88,6 +88,14 @@ class AlarmListFragment : Fragment() {
                                 data.activeDay.add(index)
                             }
                         }
+
+                        override fun onAddButtonClick(data: AlarmData) {
+                            val params = bundleOf("AlarmID" to data.id )
+                            PlaceholderContent.makeData()
+                            _adapter.notifyItemRangeChanged(data.id,2)
+                            // 画面遷移処理
+                            findNavController().navigate(R.id.action_alarmListFragment_to_mapFragment, params)
+                        }
                     }
                 )
                 adapter = _adapter

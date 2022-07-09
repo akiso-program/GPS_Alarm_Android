@@ -1,8 +1,10 @@
 package com.akiso.gps_alarm
 
 import android.graphics.Color
+import android.opengl.Visibility
 import androidx.recyclerview.widget.RecyclerView
 import android.view.LayoutInflater
+import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
@@ -49,6 +51,8 @@ class MyItemRecyclerViewAdapter(
             }
             textView.setOnClickListener { listener.onDayClick(item,index+1); notifyItemChanged(position) }
         }
+        holder.addButton.visibility = if(itemCount-1==position)View.VISIBLE else View.GONE
+        holder.addButton.setOnClickListener{ listener.onAddButtonClick(item) }
     }
 
     override fun getItemCount(): Int = values.size
@@ -60,6 +64,7 @@ class MyItemRecyclerViewAdapter(
         fun onStartTimeClick(data: AlarmData, position:Int)
         fun onEndTimeClick(data: AlarmData,position:Int)
         fun onDayClick(data: AlarmData, index:Int)
+        fun onAddButtonClick(data: AlarmData)
     }
 
     fun setOnBookCellClickListener(listener: OnCellClickListener) {
@@ -69,6 +74,7 @@ class MyItemRecyclerViewAdapter(
 
     inner class ViewHolder(binding: FragmentAlarmListItemBinding) :
         RecyclerView.ViewHolder(binding.root) {
+        val addButton = binding.addButton
         val startTimeText: TextView = binding.startTimeText
         val endTimeText:TextView = binding.endTimeText
         val locateImage: ImageView = binding.locateImageView
