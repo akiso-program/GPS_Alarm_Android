@@ -29,6 +29,8 @@ import java.util.*
 class AlarmListFragment : Fragment() {
 
     private var columnCount = 1
+    private val alarmDao = (activity as MainActivity).db.alarmDao()
+    private val alarmData : List<AlarmData> = alarmDao.getAll()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -51,7 +53,7 @@ class AlarmListFragment : Fragment() {
                     columnCount <= 1 -> LinearLayoutManager(context)
                     else -> GridLayoutManager(context, columnCount)
                 }
-                val myAdapter = MyItemRecyclerViewAdapter(PlaceholderContent.ITEMS)
+                val myAdapter = MyItemRecyclerViewAdapter(alarmData)
                 myAdapter.setOnBookCellClickListener(
                     object : MyItemRecyclerViewAdapter.OnCellClickListener {
                         override fun onLocationImageClick(data: AlarmData) {
@@ -61,12 +63,13 @@ class AlarmListFragment : Fragment() {
                         }
 
                         override fun onStartTimeClick(data: AlarmData,position: Int) {
-                            val hour = data.activeTimeStart.hour
-                            val minute = data.activeTimeStart.minute
+                            val calender = data.startToLCalendar()
+                            val hour = calender.get(Calendar.HOUR_OF_DAY)
+                            val minute = calender.get(Calendar.MINUTE)
                             val dialog = TimePickerDialog(
                                 requireContext(),
                                 { _, newHour, newMinute ->
-                                    data.activeTimeStart = LocalTime.of(newHour,newMinute)
+                                    data.activeTimeStart = java.sql.Time.valueOf(LocalTime.of(newHour,newMinute).toString())
                                     myAdapter.notifyItemChanged(position)
                                 },
                                 hour,minute,true)
@@ -74,12 +77,13 @@ class AlarmListFragment : Fragment() {
                         }
 
                         override fun onEndTimeClick(data: AlarmData,position: Int) {
-                            val hour = data.activeTimeEnd.hour
-                            val minute = data.activeTimeEnd.minute
+                            val calender = data.endToCalendar()
+                            val hour = calender.get(Calendar.HOUR_OF_DAY)
+                            val minute = calender.get(Calendar.MINUTE)
                             val dialog = TimePickerDialog(
                                 requireContext(),
                                 { _, newHour, newMinute ->
-                                    data.activeTimeEnd = LocalTime.of(newHour,newMinute)
+                                    data.activeTimeEnd = java.sql.Time.valueOf(LocalTime.of(newHour,newMinute).toString())
                                     myAdapter.notifyItemChanged(position)
                                 },
                                 hour,minute,true)
@@ -87,10 +91,28 @@ class AlarmListFragment : Fragment() {
                         }
 
                         override fun onDayClick(data: AlarmData, index: Int) {
-                            if(data.activeDay.contains(index)){
-                                data.activeDay.remove(index)
-                            }else{
-                                data.activeDay.add(index)
+                            when (index){
+                                Calendar.SUNDAY ->{
+                                    data.activeOnSunday = !data.activeOnSunday
+                                }
+                                Calendar.MONDAY ->{
+                                    data.activeOnMonday = !data.activeOnMonday
+                                }
+                                Calendar.TUESDAY ->{
+                                    data.activeOnTuesday = !data.activeOnTuesday
+                                }
+                                Calendar.WEDNESDAY ->{
+                                    data.activeOnWednesday = !data.activeOnWednesday
+                                }
+                                Calendar.THURSDAY ->{
+                                    data.activeOnThursday = !data.activeOnThursday
+                                }
+                                Calendar.FRIDAY ->{
+                                    data.activeOnFriday = !data.activeOnFriday
+                                }
+                                Calendar.SATURDAY ->{
+                                    data.activeOnSaturday = !data.activeOnSaturday
+                                }
                             }
                         }
 

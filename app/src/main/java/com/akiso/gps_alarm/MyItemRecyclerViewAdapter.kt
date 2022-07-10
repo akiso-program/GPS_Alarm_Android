@@ -1,7 +1,6 @@
 package com.akiso.gps_alarm
 
 import android.graphics.Color
-import android.opengl.Visibility
 import androidx.recyclerview.widget.RecyclerView
 import android.view.LayoutInflater
 import android.view.View
@@ -10,7 +9,8 @@ import android.widget.ImageView
 import android.widget.TextView
 
 import com.akiso.gps_alarm.databinding.FragmentAlarmListItemBinding
-import java.time.format.DateTimeFormatter
+import java.text.SimpleDateFormat
+import java.util.*
 
 class MyItemRecyclerViewAdapter(
     private val values: List<AlarmData>,
@@ -26,8 +26,8 @@ class MyItemRecyclerViewAdapter(
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         val item = values[position]
-        holder.startTimeText.text = item.activeTimeStart.format(DateTimeFormatter.ofPattern("HH:mm"))
-        holder.endTimeText.text = item.activeTimeEnd.format(DateTimeFormatter.ofPattern("HH:mm"))
+        holder.startTimeText.text = SimpleDateFormat("HH:mm", Locale.JAPANESE).format(item.startToLCalendar().time)
+        holder.endTimeText.text = SimpleDateFormat("HH:mm", Locale.JAPANESE).format(item.endToCalendar().time)
         holder.locateImage.setOnClickListener{
             listener.onLocationImageClick(item)
             notifyItemChanged(position)
@@ -37,19 +37,50 @@ class MyItemRecyclerViewAdapter(
         holder.locateImage.setOnClickListener{ listener.onLocationImageClick(item); notifyItemChanged(position) }
         holder.locateImage.setOnClickListener{ listener.onLocationImageClick(item); notifyItemChanged(position) }
         holder.daysTexts.forEachIndexed { index, textView ->
-            if(item.activeDay.contains(index+1)){
-                textView.apply {
-                    setBackgroundColor(Color.BLUE)
-                    setTextColor(Color.WHITE)
+            fun changeButton(active:Boolean){
+                if(active){
+                    textView.apply {
+                        setBackgroundColor(Color.BLUE)
+                        setTextColor(Color.WHITE)
+                    }
+                }
+                else{
+                    textView.apply {
+                        setBackgroundColor(Color.WHITE)
+                        setTextColor(Color.BLACK)
+                    }
                 }
             }
-            else{
-                textView.apply {
-                    setBackgroundColor(Color.WHITE)
-                    setTextColor(Color.BLACK)
+            when (index){
+                Calendar.SUNDAY ->{
+                    changeButton(item.activeOnSunday)
+                    textView.setOnClickListener { listener.onDayClick(item,index+1); notifyItemChanged(position) }
+                }
+                Calendar.MONDAY ->{
+                    changeButton(item.activeOnMonday)
+                    textView.setOnClickListener { listener.onDayClick(item,index+1); notifyItemChanged(position) }
+                }
+                Calendar.TUESDAY ->{
+                    changeButton(item.activeOnTuesday)
+                    textView.setOnClickListener { listener.onDayClick(item,index+1); notifyItemChanged(position) }
+                }
+                Calendar.WEDNESDAY ->{
+                    changeButton(item.activeOnWednesday)
+                    textView.setOnClickListener { listener.onDayClick(item,index+1); notifyItemChanged(position) }
+                }
+                Calendar.THURSDAY ->{
+                    changeButton(item.activeOnThursday)
+                    textView.setOnClickListener { listener.onDayClick(item,index+1); notifyItemChanged(position) }
+                }
+                Calendar.FRIDAY ->{
+                    changeButton(item.activeOnFriday)
+                    textView.setOnClickListener { listener.onDayClick(item,index+1); notifyItemChanged(position) }
+                }
+                Calendar.SATURDAY ->{
+                    changeButton(item.activeOnSaturday)
+                    textView.setOnClickListener { listener.onDayClick(item,index+1); notifyItemChanged(position) }
                 }
             }
-            textView.setOnClickListener { listener.onDayClick(item,index+1); notifyItemChanged(position) }
         }
         holder.addButton.visibility = if(itemCount-1==position)View.VISIBLE else View.GONE
         holder.addButton.setOnClickListener{ listener.onAddButtonClick(item) }
