@@ -12,8 +12,10 @@ import android.os.IBinder
 import android.util.Log
 import androidx.core.app.ActivityCompat
 import androidx.core.app.NotificationCompat
-import com.akiso.gps_alarm.placeholder.PlaceholderContent
 import com.google.android.gms.location.*
+import java.sql.Time
+import java.time.LocalTime
+import java.util.*
 
 class GpsAlarmStartService : Service(){
 
@@ -30,6 +32,8 @@ class GpsAlarmStartService : Service(){
 
 class GpsAlarmService : Service() {
     private lateinit var fusedLocationClient: FusedLocationProviderClient
+    private val db = AppDatabase.getInstance(context = this)
+    private val dao = db.alarmDao()
 
     override fun onBind(intent: Intent): IBinder {
         TODO("Return the communication channel to the service.")
@@ -67,45 +71,67 @@ class GpsAlarmService : Service() {
         val locationCallback = object : LocationCallback() {
             override fun onLocationResult(p0: LocationResult) {
                 for (location in p0.locations){
-                    PlaceholderContent
-                        .getActiveData()
-                        .filter { !it.isAlreadyDone }
-                        .forEach {
-                            val targetLocation = Location("").apply {
-                                latitude = it.location.latitude
-                                longitude = it.location.longitude
-                            }
-                            val distance = location.distanceTo(targetLocation)
-                            if(distance < 100){
-                                //alarm
-                                Log.d(this.javaClass.name, "${location.latitude} , ${location.longitude}")
-                            }
+
+                    getActiveData(Calendar.getInstance())
+                    .filter { !it.isAlreadyDone }
+                    .forEach {
+                        val targetLocation = Location("").apply {
+                            latitude = it.latitude
+                            longitude = it.longitude
                         }
+                        val distance = location.distanceTo(targetLocation)
+                        if(distance < 100){
+                            //alarm
+                            Log.d(this.javaClass.name, "${location.latitude} , ${location.longitude}")
+                        }
+                    }
                 }
             }
         }
 
-        Thread(
-            Runnable {
-                fusedLocationClient.requestLocationUpdates(
-                    LocationRequest.create().apply {
-                        interval = 10000
-                        fastestInterval = 5000
-                        priority =  Priority.PRIORITY_HIGH_ACCURACY
-                    },
-                    locationCallback,
-                    null
-                )
-                (0..100).map {
-                    Thread.sleep(1000)
-                }
-                fusedLocationClient.removeLocationUpdates(locationCallback)
-                stopForeground(STOP_FOREGROUND_REMOVE)
+        Thread {
+            fusedLocationClient.requestLocationUpdates(
+                LocationRequest.create().apply {
+                    interval = 10000
+                    fastestInterval = 5000
+                    priority = Priority.PRIORITY_HIGH_ACCURACY
+                },
+                locationCallback,
+                null
+            )
+            (0..100).map {
+                Thread.sleep(1000)
+            }
+            fusedLocationClient.removeLocationUpdates(locationCallback)
+            stopForeground(STOP_FOREGROUND_REMOVE)
 
-            }).start()
+        }.start()
 
         startForeground(1, notification)
 
         return START_REDELIVER_INTENT
+    }
+
+    private fun getActiveDataDay(calendar: Calendar):List<AlarmData>{
+        return when(calendar.get(Calendar.DAY_OF_WEEK)){
+            Calendar.SUNDAY -> dao.getActiveDataOnSunday()
+            Calendar.MONDAY -> dao.getActiveDataOnMonday()
+            Calendar.TUESDAY -> dao.getActiveDataOnTuesday()
+            Calendar.WEDNESDAY -> dao.getActiveDataOnWednesday()
+            Calendar.THURSDAY -> dao.getActiveDataOnThursday()
+            Calendar.FRIDAY -> dao.getActiveDataOnFriday()
+            Calendar.SATURDAY -> dao.getActiveDataOnSaturday()
+            else -> listOf()
+        }
+    }
+    private fun getActiveData(calendar: Calendar):List<AlarmData>{
+
+            // 曜日が一致し、start <= time <= end || stat == end
+        return getActiveDataDay(calendar).filter {
+            val hour = calendar.get(Calendar.HOUR_OF_DAY)
+            val minute = calendar.get(Calendar.MINUTE)
+            val time = Time.valueOf(LocalTime.of(hour,minute).toString())
+            (it.activeTimeStart <= time && time <= it.activeTimeEnd) || (it.activeTimeStart == it.activeTimeEnd)
+        }
     }
 }

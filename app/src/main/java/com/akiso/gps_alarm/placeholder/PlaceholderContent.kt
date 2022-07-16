@@ -3,6 +3,7 @@ package com.akiso.gps_alarm.placeholder
 import android.support.v4.os.IResultReceiver
 import com.akiso.gps_alarm.AlarmData
 import com.google.android.gms.maps.model.LatLng
+import java.sql.Time
 import java.time.LocalDate
 import java.time.LocalTime
 import java.util.*
@@ -21,10 +22,17 @@ object PlaceholderContent {
     val ITEMS: MutableList<AlarmData> = ArrayList()
     val DEFAULT_DATA = AlarmData(
         0,
-        LocalTime.of(1, 0),
-        LocalTime.of(2, 0),
-        mutableListOf(Calendar.SUNDAY,Calendar.THURSDAY),
-        LatLng(35.6817882863765, 139.76703598784582),
+        Time.valueOf("01:00:00"),
+        Time.valueOf("02:00:00"),
+        activeOnSunday = false,
+        activeOnMonday = false,
+        activeOnTuesday = false,
+        activeOnWednesday = false,
+        activeOnThursday = false,
+        activeOnFriday = false,
+        activeOnSaturday = false,
+        latitude = 35.6817882863765,
+        longitude = 139.76703598784582,
         isActive = true,
         isAlreadyDone = false
     )
@@ -42,18 +50,6 @@ object PlaceholderContent {
         data?.id = id - 1
         return data
     }
-    fun getActiveData(): List<AlarmData> {
-        val calendar = Calendar.getInstance()
-        return ITEMS.filter {
-            it.isActive(calendar.get(Calendar.DAY_OF_WEEK)) && it.isActive(LocalTime.now())
-        }
-    }
-
-    fun getNextStart(now: LocalTime):LocalTime?{
-        return ITEMS.filter { it.isActive && now < it.activeTimeStart }
-            .minByOrNull { it.activeTimeStart }
-            ?.activeTimeStart
-    }
 
     fun makeData(){
         val data = createAlarmData(ITEMS.size + 1)
@@ -70,15 +66,7 @@ object PlaceholderContent {
             LatLng(34.73375038839483, 135.50033463624678),
             LatLng(33.59201931312273, 130.420219212164),
         )
-        return AlarmData(
-            position,
-            LocalTime.of(1 + position, 0),
-            LocalTime.of(2 + position, 0),
-            mutableListOf(Calendar.SUNDAY,Calendar.THURSDAY),
-            locations[position % locations.size],
-            isActive = true,
-            isAlreadyDone = false
-        )
+        return DEFAULT_DATA.copy()
     }
 
 

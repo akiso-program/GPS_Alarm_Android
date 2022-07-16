@@ -14,11 +14,11 @@ import android.view.ViewGroup
 import androidx.core.content.ContextCompat.getSystemService
 import androidx.core.os.bundleOf
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.akiso.gps_alarm.placeholder.PlaceholderContent
 import java.time.LocalTime
 import java.util.*
 
@@ -29,8 +29,7 @@ import java.util.*
 class AlarmListFragment : Fragment() {
 
     private var columnCount = 1
-    private val alarmDao = (activity as MainActivity).db.alarmDao()
-    private val alarmData : List<AlarmData> = alarmDao.getAll()
+    private val myModel = ViewModelProvider(this)[MyViewModel::class.java]
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -45,6 +44,10 @@ class AlarmListFragment : Fragment() {
         savedInstanceState: Bundle?,
     ): View? {
         val view = inflater.inflate(R.layout.fragment_alarm_list, container, false)
+
+        var alarmData:List<AlarmData> = listOf()
+        myModel.data.observe(viewLifecycleOwner) { alarmData = it }
+        myModel.getAll()
 
         // Set the adapter
         if (view is RecyclerView) {
@@ -63,7 +66,7 @@ class AlarmListFragment : Fragment() {
                         }
 
                         override fun onStartTimeClick(data: AlarmData,position: Int) {
-                            val calender = data.startToLCalendar()
+                            val calender = data.startToCalendar()
                             val hour = calender.get(Calendar.HOUR_OF_DAY)
                             val minute = calender.get(Calendar.MINUTE)
                             val dialog = TimePickerDialog(
@@ -92,33 +95,19 @@ class AlarmListFragment : Fragment() {
 
                         override fun onDayClick(data: AlarmData, index: Int) {
                             when (index){
-                                Calendar.SUNDAY ->{
-                                    data.activeOnSunday = !data.activeOnSunday
-                                }
-                                Calendar.MONDAY ->{
-                                    data.activeOnMonday = !data.activeOnMonday
-                                }
-                                Calendar.TUESDAY ->{
-                                    data.activeOnTuesday = !data.activeOnTuesday
-                                }
-                                Calendar.WEDNESDAY ->{
-                                    data.activeOnWednesday = !data.activeOnWednesday
-                                }
-                                Calendar.THURSDAY ->{
-                                    data.activeOnThursday = !data.activeOnThursday
-                                }
-                                Calendar.FRIDAY ->{
-                                    data.activeOnFriday = !data.activeOnFriday
-                                }
-                                Calendar.SATURDAY ->{
-                                    data.activeOnSaturday = !data.activeOnSaturday
-                                }
+                                Calendar.SUNDAY -> data.activeOnSunday = !data.activeOnSunday
+                                Calendar.MONDAY -> data.activeOnMonday = !data.activeOnMonday
+                                Calendar.TUESDAY -> data.activeOnTuesday = !data.activeOnTuesday
+                                Calendar.WEDNESDAY -> data.activeOnWednesday = !data.activeOnWednesday
+                                Calendar.THURSDAY -> data.activeOnThursday = !data.activeOnThursday
+                                Calendar.FRIDAY -> data.activeOnFriday = !data.activeOnFriday
+                                Calendar.SATURDAY -> data.activeOnSaturday = !data.activeOnSaturday
                             }
                         }
 
                         override fun onAddButtonClick(data: AlarmData) {
                             val params = bundleOf("AlarmID" to data.id )
-                            PlaceholderContent.makeData()
+                            myModel.newData()
                             myAdapter.notifyItemRangeChanged(data.id,2)
                             // 画面遷移処理
                             findNavController().navigate(R.id.action_alarmListFragment_to_mapFragment, params)
@@ -135,13 +124,13 @@ class AlarmListFragment : Fragment() {
 
     @SuppressLint("UnspecifiedImmutableFlag")
     private fun setAlarmService(){
-        val nextStart = PlaceholderContent.getNextStart(LocalTime.now())
+        val nextStart = myModel.getNextStart(Calendar.getInstance())
         nextStart?.also {
             val serviceIntent = Intent(activity, GpsAlarmStartService::class.java)
             val pendingIntent = PendingIntent.getActivity(requireContext(),0,serviceIntent,PendingIntent.FLAG_UPDATE_CURRENT)
             val calendar: Calendar = Calendar.getInstance().apply {
-                set(Calendar.HOUR_OF_DAY, nextStart.hour)
-                set(Calendar.MINUTE, nextStart.minute)
+                set(Calendar.HOUR_OF_DAY, nextStart.startToCalendar().get(Calendar.HOUR_OF_DAY))
+                set(Calendar.MINUTE, nextStart.startToCalendar().get(Calendar.MINUTE))
                 set(Calendar.SECOND, 0) //0秒
                 set(Calendar.MILLISECOND, 0) //カンマ0秒
             }

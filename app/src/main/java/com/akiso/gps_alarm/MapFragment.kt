@@ -7,8 +7,8 @@ import android.view.*
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.app.ActivityCompat
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController
-import com.akiso.gps_alarm.placeholder.PlaceholderContent
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.OnMapReadyCallback
@@ -23,6 +23,7 @@ class MapFragment : Fragment() {
     private lateinit var alarmData: AlarmData
     private lateinit var newLocation: LatLng
     private var mapMarker: Marker? = null
+    private val myModel = ViewModelProvider(this)[MyViewModel::class.java]
 
     private val callback = OnMapReadyCallback { googleMap ->
         mapMarker = googleMap.addMarker(MarkerOptions().position(alarmData.location))
@@ -56,7 +57,16 @@ class MapFragment : Fragment() {
         }
 
         val id : Int = (arguments?.get("AlarmID")?:0) as Int
-        alarmData = PlaceholderContent.getData(id)?: PlaceholderContent.DEFAULT_DATA
+        myModel.getById(id).observe(viewLifecycleOwner){
+            it?.also {
+                alarmData = it
+            }
+            it?: run {
+                myModel.newData().observe(viewLifecycleOwner) { it2 ->
+                    alarmData = it2
+                }
+            }
+        }
         return inflater.inflate(R.layout.fragment_map, container, false)
     }
 
@@ -79,6 +89,6 @@ class MapFragment : Fragment() {
                 return false
             }
         }
-        return super.onOptionsItemSelected(item);
+        return super.onOptionsItemSelected(item)
     }
 }

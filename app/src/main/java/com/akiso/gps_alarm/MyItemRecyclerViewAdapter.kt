@@ -26,7 +26,7 @@ class MyItemRecyclerViewAdapter(
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         val item = values[position]
-        holder.startTimeText.text = SimpleDateFormat("HH:mm", Locale.JAPANESE).format(item.startToLCalendar().time)
+        holder.startTimeText.text = SimpleDateFormat("HH:mm", Locale.JAPANESE).format(item.startToCalendar().time)
         holder.endTimeText.text = SimpleDateFormat("HH:mm", Locale.JAPANESE).format(item.endToCalendar().time)
         holder.locateImage.setOnClickListener{
             listener.onLocationImageClick(item)
