@@ -1,34 +1,31 @@
 package com.akiso.gps_alarm
 
 import android.content.Context
-import android.os.Build
-import androidx.annotation.RequiresApi
 import androidx.room.*
-import androidx.room.Entity
-import androidx.room.Query
 import com.google.android.gms.maps.model.LatLng
 import java.sql.Time
-import java.time.LocalTime
-import java.time.ZoneId
 import java.util.*
 
 @Entity
 data class AlarmData(
     @PrimaryKey(autoGenerate = true) var id: Int = 0,
-    @ColumnInfo (name = "active_time_start") var activeTimeStart: Time = Time.valueOf("00:00"),
+    @ColumnInfo(name = "active_time_start") var activeTimeStart: Time = Time.valueOf("00:00"),
     @ColumnInfo(name = "active_time_end") var activeTimeEnd: Time = Time.valueOf("00:00"),
     @ColumnInfo(name = "active_on_sunday") var activeOnSunday: Boolean = true,
-    @ColumnInfo(name = "active_on_monday") var activeOnMonday: Boolean= true,
-    @ColumnInfo(name = "active_on_tuesday") var activeOnTuesday: Boolean= true,
-    @ColumnInfo(name = "active_on_wednesday") var activeOnWednesday: Boolean= true,
-    @ColumnInfo(name = "active_on_thursday") var activeOnThursday: Boolean= true,
-    @ColumnInfo(name = "active_on_friday") var activeOnFriday: Boolean= true,
-    @ColumnInfo(name = "active_on_saturday") var activeOnSaturday: Boolean= true,
+    @ColumnInfo(name = "active_on_monday") var activeOnMonday: Boolean = true,
+    @ColumnInfo(name = "active_on_tuesday") var activeOnTuesday: Boolean = true,
+    @ColumnInfo(name = "active_on_wednesday") var activeOnWednesday: Boolean = true,
+    @ColumnInfo(name = "active_on_thursday") var activeOnThursday: Boolean = true,
+    @ColumnInfo(name = "active_on_friday") var activeOnFriday: Boolean = true,
+    @ColumnInfo(name = "active_on_saturday") var activeOnSaturday: Boolean = true,
     @ColumnInfo(name = "latitude") var latitude: Double = 0.0,
     @ColumnInfo(name = "longitude") var longitude: Double = 0.0,
     @ColumnInfo(name = "is_active") var isActive: Boolean = true,
-    @ColumnInfo(name = "is_already_done") var isAlreadyDone: Boolean = false
+    @ColumnInfo(name = "is_already_done") var isAlreadyDone: Boolean = false,
 ){
+    @Ignore
+    constructor() : this(0)
+
     override fun toString(): String = id.toString()
     fun startToCalendar():Calendar{
         return Calendar.Builder().apply {
@@ -40,11 +37,12 @@ data class AlarmData(
             setInstant(activeTimeEnd.time)
         }.build()
     }
-    var location: LatLng = LatLng(latitude,longitude)
-    set(value){
-        latitude = value.latitude
-        longitude = value.longitude
-        field = value
+    fun getLocation():LatLng{
+        return LatLng(latitude,longitude)
+    }
+    fun setLocation(latLng: LatLng){
+        latitude = latLng.latitude
+        longitude = latLng.longitude
     }
 }
 
@@ -81,11 +79,11 @@ interface AlarmDao{
     @Query("SELECT * FROM alarmData WHERE active_on_saturday IS 1 AND is_active IS 1 ORDER BY active_time_start")
     fun getActiveDataOnSaturday(): List<AlarmData>
 
-    @Query("SELECT last_insert_id() FROM alarmData")
-    fun getLastInsertId(): Int
+    @Insert
+    fun insertAll(vararg data: AlarmData):List<Long>
 
     @Insert
-    fun insertAll(vararg data: AlarmData)
+    fun insert(data: AlarmData):Long
 
     @Update
     fun update(data: AlarmData)
@@ -94,7 +92,8 @@ interface AlarmDao{
     fun delete(data: AlarmData)
 }
 
-@Database(entities = [AlarmData::class], version = 1)
+@Database(entities = [AlarmData::class], version = 1, exportSchema = false)
+@TypeConverters(TimeConverter::class)
 abstract class AppDatabase : RoomDatabase() {
     abstract fun alarmDao(): AlarmDao
 
@@ -104,7 +103,7 @@ abstract class AppDatabase : RoomDatabase() {
 
         fun getInstance(context: Context): AppDatabase {
             if (INSTANCE == null) {
-                INSTANCE = Room.databaseBuilder(context, AppDatabase::class.java, "yourdb.db").build()
+                INSTANCE = Room.databaseBuilder(context, AppDatabase::class.java, "alarm_list.db").build()
             }
             return INSTANCE!!
         }
@@ -112,5 +111,17 @@ abstract class AppDatabase : RoomDatabase() {
         fun destroyInstance() {
             INSTANCE = null
         }
+    }
+}
+
+class TimeConverter {
+    @TypeConverter
+    fun fromTimestamp(value: Long?): Time? {
+        return if (value == null) null else Time(value)
+    }
+
+    @TypeConverter
+    fun toTimestamp(time: Time?): Long? {
+        return time?.toInstant()?.toEpochMilli()
     }
 }

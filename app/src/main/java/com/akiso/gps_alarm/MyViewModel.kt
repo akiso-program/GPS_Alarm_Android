@@ -1,11 +1,8 @@
 package com.akiso.gps_alarm
 
 import android.app.Application
-import androidx.lifecycle.AndroidViewModel
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.viewModelScope
-import androidx.room.Room
+import android.util.Log
+import androidx.lifecycle.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -23,7 +20,7 @@ class MyViewModel (application: Application):
     fun getAll() {
         viewModelScope.launch {
             withContext(Dispatchers.IO) {
-                data.value = dao.getAll()
+                data.postValue(dao.getAll())
             }
         }
     }
@@ -52,7 +49,7 @@ class MyViewModel (application: Application):
     fun insert(data:AlarmData){
         viewModelScope.launch {
             withContext(Dispatchers.IO) {
-                dao.insertAll(data)
+                dao.insert(data)
             }
         }
     }
@@ -62,42 +59,31 @@ class MyViewModel (application: Application):
         viewModelScope.launch {
             withContext(Dispatchers.IO){
                 val newData = AlarmData()
-                insert(newData)
+                val id = insert(newData)
                 result.postValue(newData)
+                Log.d("newData","$id,${newData.id} ")
             }
         }
         return result
     }
 
-    fun getActiveDataDay(calendar: Calendar):List<AlarmData>{
-        return when(calendar.get(Calendar.DAY_OF_WEEK)){
-            Calendar.SUNDAY -> dao.getActiveDataOnSunday()
-            Calendar.MONDAY -> dao.getActiveDataOnMonday()
-            Calendar.TUESDAY -> dao.getActiveDataOnTuesday()
-            Calendar.WEDNESDAY -> dao.getActiveDataOnWednesday()
-            Calendar.THURSDAY -> dao.getActiveDataOnThursday()
-            Calendar.FRIDAY -> dao.getActiveDataOnFriday()
-            Calendar.SATURDAY -> dao.getActiveDataOnSaturday()
-            else -> listOf()
+    fun getActiveDataDay(calendar: Calendar):LiveData<List<AlarmData>>{
+        val result = MutableLiveData<List<AlarmData>>()
+        viewModelScope.launch {
+            withContext(Dispatchers.IO){
+                val data = when(calendar.get(Calendar.DAY_OF_WEEK)) {
+                    Calendar.SUNDAY -> dao.getActiveDataOnSunday()
+                    Calendar.MONDAY -> dao.getActiveDataOnMonday()
+                    Calendar.TUESDAY -> dao.getActiveDataOnTuesday()
+                    Calendar.WEDNESDAY -> dao.getActiveDataOnWednesday()
+                    Calendar.THURSDAY -> dao.getActiveDataOnThursday()
+                    Calendar.FRIDAY -> dao.getActiveDataOnFriday()
+                    Calendar.SATURDAY -> dao.getActiveDataOnSaturday()
+                    else -> listOf()
+                }
+                result.postValue(data)
+            }
         }
-    }
-
-    fun getNextStart(calendar: Calendar):AlarmData?{
-        for(i in 0..6) {
-            calendar.add(Calendar.DAY_OF_WEEK,1)
-            val data = getActiveDataDay(calendar)
-            if(data.isNotEmpty())return data.firstOrNull()
-        }
-        return null
-    }
-
-    fun getActiveData(calendar: Calendar):List<AlarmData>{
-        // 曜日が一致し、start <= time <= end || stat == end
-        return getActiveDataDay(calendar).filter {
-            val hour = calendar.get(Calendar.HOUR_OF_DAY)
-            val minute = calendar.get(Calendar.MINUTE)
-            val time = Time.valueOf(LocalTime.of(hour,minute).toString())
-            (it.activeTimeStart <= time && time <= it.activeTimeEnd) || (it.activeTimeStart == it.activeTimeEnd)
-        }
+        return result
     }
 }

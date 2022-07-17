@@ -14,7 +14,9 @@ import android.view.ViewGroup
 import androidx.core.content.ContextCompat.getSystemService
 import androidx.core.os.bundleOf
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.viewModelScope
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -29,7 +31,7 @@ import java.util.*
 class AlarmListFragment : Fragment() {
 
     private var columnCount = 1
-    private val myModel = ViewModelProvider(this)[MyViewModel::class.java]
+    private val myModel : MyViewModel by activityViewModels()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -124,13 +126,12 @@ class AlarmListFragment : Fragment() {
 
     @SuppressLint("UnspecifiedImmutableFlag")
     private fun setAlarmService(){
-        val nextStart = myModel.getNextStart(Calendar.getInstance())
-        nextStart?.also {
+        getNextStart(Calendar.getInstance())?.also {
             val serviceIntent = Intent(activity, GpsAlarmStartService::class.java)
             val pendingIntent = PendingIntent.getActivity(requireContext(),0,serviceIntent,PendingIntent.FLAG_UPDATE_CURRENT)
             val calendar: Calendar = Calendar.getInstance().apply {
-                set(Calendar.HOUR_OF_DAY, nextStart.startToCalendar().get(Calendar.HOUR_OF_DAY))
-                set(Calendar.MINUTE, nextStart.startToCalendar().get(Calendar.MINUTE))
+                set(Calendar.HOUR_OF_DAY, it.startToCalendar().get(Calendar.HOUR_OF_DAY))
+                set(Calendar.MINUTE, it.startToCalendar().get(Calendar.MINUTE))
                 set(Calendar.SECOND, 0) //0秒
                 set(Calendar.MILLISECOND, 0) //カンマ0秒
             }
@@ -138,6 +139,21 @@ class AlarmListFragment : Fragment() {
             alarm?.setExact(AlarmManager.RTC_WAKEUP,calendar.timeInMillis, pendingIntent)
         }
     }
+
+    private fun getNextStart(calendar: Calendar):AlarmData?{
+        var result : AlarmData? = null
+        for (i in 0..6) {
+            calendar.add(Calendar.DAY_OF_WEEK, 1)
+            myModel.getActiveDataDay(calendar).observe(viewLifecycleOwner) {
+                if (it.isNotEmpty()) {
+                    result = it.firstOrNull()
+                    return@observe
+                }
+            }
+        }
+        return result
+    }
+
 
     companion object {
 

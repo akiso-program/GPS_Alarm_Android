@@ -6,8 +6,11 @@ import android.os.Bundle
 import android.view.*
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.app.ActivityCompat
+import androidx.core.view.MenuHost
+import androidx.core.view.MenuProvider
 import androidx.fragment.app.Fragment
-import androidx.lifecycle.ViewModelProvider
+import androidx.fragment.app.activityViewModels
+import androidx.lifecycle.Lifecycle
 import androidx.navigation.fragment.findNavController
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.maps.CameraUpdateFactory
@@ -23,11 +26,11 @@ class MapFragment : Fragment() {
     private lateinit var alarmData: AlarmData
     private lateinit var newLocation: LatLng
     private var mapMarker: Marker? = null
-    private val myModel = ViewModelProvider(this)[MyViewModel::class.java]
+    private val myModel: MyViewModel by activityViewModels()
 
     private val callback = OnMapReadyCallback { googleMap ->
-        mapMarker = googleMap.addMarker(MarkerOptions().position(alarmData.location))
-        googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(alarmData.location,14.0f))
+        mapMarker = googleMap.addMarker(MarkerOptions().position(alarmData.getLocation()))
+        googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(alarmData.getLocation(),14.0f))
         googleMap.setOnMapClickListener { tapLocation ->
             mapMarker?.remove()
 
@@ -72,23 +75,25 @@ class MapFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        setHasOptionsMenu(true)
         val mapFragment = childFragmentManager.findFragmentById(R.id.map) as SupportMapFragment?
         mapFragment?.getMapAsync(callback)
-    }
 
-    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
-        super.onCreateOptionsMenu(menu, inflater)
-        inflater.inflate(R.menu.memu_map_fragment, menu)
-    }
-    override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        when (item.itemId) {
-            R.id.save -> {
-                alarmData.location = newLocation
-                findNavController().navigate(R.id.action_mapFragment_to_alarmListFragment)
-                return false
+        val menuHost: MenuHost = requireActivity()
+        menuHost.addMenuProvider(object : MenuProvider {
+            override fun onCreateMenu(menu: Menu, menuInflater: MenuInflater) {
+                menuInflater.inflate(R.menu.memu_map_fragment, menu)
             }
-        }
-        return super.onOptionsItemSelected(item)
+
+            override fun onMenuItemSelected(menuItem: MenuItem): Boolean {
+                when (menuItem.itemId) {
+                    R.id.save -> {
+                        alarmData.setLocation(newLocation)
+                        findNavController().navigate(R.id.action_mapFragment_to_alarmListFragment)
+                        return false
+                    }
+                }
+                return true
+            }
+        }, viewLifecycleOwner, Lifecycle.State.RESUMED)
     }
 }
