@@ -25,68 +25,104 @@ class MyItemRecyclerViewAdapter(
     }
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
-        val item = values[position]
-        holder.startTimeText.text = SimpleDateFormat("HH:mm", Locale.JAPANESE).format(item.startToCalendar().time)
-        holder.endTimeText.text = SimpleDateFormat("HH:mm", Locale.JAPANESE).format(item.endToCalendar().time)
-        holder.locateImage.setOnClickListener{
-            listener.onLocationImageClick(item)
-            notifyItemChanged(position)
-        }
-        holder.startTimeText.setOnClickListener{ listener.onStartTimeClick(item,position); notifyItemChanged(position) }
-        holder.endTimeText.setOnClickListener{ listener.onEndTimeClick(item,position); notifyItemChanged(position) }
-        holder.locateImage.setOnClickListener{ listener.onLocationImageClick(item); notifyItemChanged(position) }
-        holder.locateImage.setOnClickListener{ listener.onLocationImageClick(item); notifyItemChanged(position) }
-        holder.daysTexts.forEachIndexed { index, textView ->
-            fun changeButton(active:Boolean){
-                if(active){
-                    textView.apply {
-                        setBackgroundColor(Color.BLUE)
-                        setTextColor(Color.WHITE)
+        if(itemCount-1 == position){
+            holder.addButton.visibility = if (itemCount - 1 == position) View.VISIBLE else View.GONE
+            holder.addButton.setOnClickListener { listener.onAddButtonClick() }
+        }else {
+            val item = values[position]
+            holder.startTimeText.text =
+                SimpleDateFormat("HH:mm", Locale.JAPANESE).format(item.startToCalendar().time)
+            holder.endTimeText.text =
+                SimpleDateFormat("HH:mm", Locale.JAPANESE).format(item.endToCalendar().time)
+            holder.locateImage.setOnClickListener {
+                listener.onLocationImageClick(item)
+                notifyItemChanged(position)
+            }
+            holder.startTimeText.setOnClickListener {
+                listener.onStartTimeClick(item,
+                    position); notifyItemChanged(position)
+            }
+            holder.endTimeText.setOnClickListener {
+                listener.onEndTimeClick(item,
+                    position); notifyItemChanged(position)
+            }
+            holder.locateImage.setOnClickListener {
+                listener.onLocationImageClick(item); notifyItemChanged(position)
+            }
+            holder.locateImage.setOnClickListener {
+                listener.onLocationImageClick(item); notifyItemChanged(position)
+            }
+            holder.daysTexts.forEachIndexed { index, textView ->
+                fun changeButton(active: Boolean) {
+                    if (active) {
+                        textView.apply {
+                            setBackgroundColor(Color.BLUE)
+                            setTextColor(Color.WHITE)
+                        }
+                    } else {
+                        textView.apply {
+                            setBackgroundColor(Color.WHITE)
+                            setTextColor(Color.BLACK)
+                        }
                     }
                 }
-                else{
-                    textView.apply {
-                        setBackgroundColor(Color.WHITE)
-                        setTextColor(Color.BLACK)
+                when (index) {
+                    Calendar.SUNDAY -> {
+                        changeButton(item.activeOnSunday)
+                        textView.setOnClickListener {
+                            listener.onDayClick(item,
+                                index + 1); notifyItemChanged(position)
+                        }
+                    }
+                    Calendar.MONDAY -> {
+                        changeButton(item.activeOnMonday)
+                        textView.setOnClickListener {
+                            listener.onDayClick(item,
+                                index + 1); notifyItemChanged(position)
+                        }
+                    }
+                    Calendar.TUESDAY -> {
+                        changeButton(item.activeOnTuesday)
+                        textView.setOnClickListener {
+                            listener.onDayClick(item,
+                                index + 1); notifyItemChanged(position)
+                        }
+                    }
+                    Calendar.WEDNESDAY -> {
+                        changeButton(item.activeOnWednesday)
+                        textView.setOnClickListener {
+                            listener.onDayClick(item,
+                                index + 1); notifyItemChanged(position)
+                        }
+                    }
+                    Calendar.THURSDAY -> {
+                        changeButton(item.activeOnThursday)
+                        textView.setOnClickListener {
+                            listener.onDayClick(item,
+                                index + 1); notifyItemChanged(position)
+                        }
+                    }
+                    Calendar.FRIDAY -> {
+                        changeButton(item.activeOnFriday)
+                        textView.setOnClickListener {
+                            listener.onDayClick(item,
+                                index + 1); notifyItemChanged(position)
+                        }
+                    }
+                    Calendar.SATURDAY -> {
+                        changeButton(item.activeOnSaturday)
+                        textView.setOnClickListener {
+                            listener.onDayClick(item,
+                                index + 1); notifyItemChanged(position)
+                        }
                     }
                 }
             }
-            when (index){
-                Calendar.SUNDAY ->{
-                    changeButton(item.activeOnSunday)
-                    textView.setOnClickListener { listener.onDayClick(item,index+1); notifyItemChanged(position) }
-                }
-                Calendar.MONDAY ->{
-                    changeButton(item.activeOnMonday)
-                    textView.setOnClickListener { listener.onDayClick(item,index+1); notifyItemChanged(position) }
-                }
-                Calendar.TUESDAY ->{
-                    changeButton(item.activeOnTuesday)
-                    textView.setOnClickListener { listener.onDayClick(item,index+1); notifyItemChanged(position) }
-                }
-                Calendar.WEDNESDAY ->{
-                    changeButton(item.activeOnWednesday)
-                    textView.setOnClickListener { listener.onDayClick(item,index+1); notifyItemChanged(position) }
-                }
-                Calendar.THURSDAY ->{
-                    changeButton(item.activeOnThursday)
-                    textView.setOnClickListener { listener.onDayClick(item,index+1); notifyItemChanged(position) }
-                }
-                Calendar.FRIDAY ->{
-                    changeButton(item.activeOnFriday)
-                    textView.setOnClickListener { listener.onDayClick(item,index+1); notifyItemChanged(position) }
-                }
-                Calendar.SATURDAY ->{
-                    changeButton(item.activeOnSaturday)
-                    textView.setOnClickListener { listener.onDayClick(item,index+1); notifyItemChanged(position) }
-                }
-            }
+            holder.addButton.visibility = View.GONE
         }
-        holder.addButton.visibility = if(itemCount-1==position)View.VISIBLE else View.GONE
-        holder.addButton.setOnClickListener{ listener.onAddButtonClick(item) }
     }
 
-    override fun getItemCount(): Int = values.size
+    override fun getItemCount(): Int = values.size + 1
 
     private lateinit var listener: OnCellClickListener
 
@@ -95,7 +131,7 @@ class MyItemRecyclerViewAdapter(
         fun onStartTimeClick(data: AlarmData, position:Int)
         fun onEndTimeClick(data: AlarmData,position:Int)
         fun onDayClick(data: AlarmData, index:Int)
-        fun onAddButtonClick(data: AlarmData)
+        fun onAddButtonClick()
     }
 
     fun setOnBookCellClickListener(listener: OnCellClickListener) {

@@ -60,14 +60,13 @@ class MapFragment : Fragment() {
         }
 
         val id : Int = (arguments?.get("AlarmID")?:0) as Int
-        myModel.getById(id).observe(viewLifecycleOwner){
-            it?.also {
+        myModel.getById(id).apply {
+            this?.also {
                 alarmData = it
             }
-            it?: run {
-                myModel.newData().observe(viewLifecycleOwner) { it2 ->
-                    alarmData = it2
-                }
+            this?: run {
+                /// TODO: データがないとき
+                findNavController().navigate(R.id.action_mapFragment_to_alarmListFragment)
             }
         }
         return inflater.inflate(R.layout.fragment_map, container, false)

@@ -15,22 +15,20 @@ class MyViewModel (application: Application):
 
     private val db = AppDatabase.getInstance(context = application)
     private val dao = db.alarmDao()
-
     val data = MutableLiveData<List<AlarmData>>()
-    fun getAll() {
+
+    fun getAll(){
         viewModelScope.launch {
             withContext(Dispatchers.IO) {
                 data.postValue(dao.getAll())
             }
         }
     }
-    fun getById(id:Int):LiveData<AlarmData?>{
-        val result = MutableLiveData<AlarmData?>()
-        viewModelScope.launch {
-            val data = dao.loadById(id)
-            result.postValue(data)
+    fun getById(id:Int):AlarmData?{
+        data.value?.forEach {
+            if(it.id == id)return it
         }
-        return result
+        return null
     }
     fun update(data:AlarmData){
         viewModelScope.launch {
@@ -46,22 +44,11 @@ class MyViewModel (application: Application):
             }
         }
     }
-    fun insert(data:AlarmData){
+    fun insert(data:AlarmData):LiveData<Long>{
+        val result = MutableLiveData<Long>()
         viewModelScope.launch {
             withContext(Dispatchers.IO) {
-                dao.insert(data)
-            }
-        }
-    }
-
-    fun newData():LiveData<AlarmData>{
-        val result = MutableLiveData<AlarmData>()
-        viewModelScope.launch {
-            withContext(Dispatchers.IO){
-                val newData = AlarmData()
-                val id = insert(newData)
-                result.postValue(newData)
-                Log.d("newData","$id,${newData.id} ")
+                result.postValue(dao.insert(data))
             }
         }
         return result

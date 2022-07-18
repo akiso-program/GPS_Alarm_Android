@@ -21,6 +21,7 @@ import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import java.sql.Time
 import java.time.LocalTime
 import java.util.*
 
@@ -46,9 +47,13 @@ class AlarmListFragment : Fragment() {
         savedInstanceState: Bundle?,
     ): View? {
         val view = inflater.inflate(R.layout.fragment_alarm_list, container, false)
+        val alarmData:MutableList<AlarmData> = mutableListOf()
+        val myAdapter = MyItemRecyclerViewAdapter(alarmData)
 
-        var alarmData:List<AlarmData> = listOf()
-        myModel.data.observe(viewLifecycleOwner) { alarmData = it }
+        myModel.data.observe(viewLifecycleOwner) {
+            it.forEach(alarmData::add)
+            myAdapter.notifyItemRangeChanged(0,it.size)
+        }
         myModel.getAll()
 
         // Set the adapter
@@ -58,7 +63,6 @@ class AlarmListFragment : Fragment() {
                     columnCount <= 1 -> LinearLayoutManager(context)
                     else -> GridLayoutManager(context, columnCount)
                 }
-                val myAdapter = MyItemRecyclerViewAdapter(alarmData)
                 myAdapter.setOnBookCellClickListener(
                     object : MyItemRecyclerViewAdapter.OnCellClickListener {
                         override fun onLocationImageClick(data: AlarmData) {
@@ -74,7 +78,7 @@ class AlarmListFragment : Fragment() {
                             val dialog = TimePickerDialog(
                                 requireContext(),
                                 { _, newHour, newMinute ->
-                                    data.activeTimeStart = java.sql.Time.valueOf(LocalTime.of(newHour,newMinute).toString())
+                                    data.activeTimeStart = Time.valueOf(LocalTime.of(newHour,newMinute).toString())
                                     myAdapter.notifyItemChanged(position)
                                 },
                                 hour,minute,true)
@@ -88,7 +92,7 @@ class AlarmListFragment : Fragment() {
                             val dialog = TimePickerDialog(
                                 requireContext(),
                                 { _, newHour, newMinute ->
-                                    data.activeTimeEnd = java.sql.Time.valueOf(LocalTime.of(newHour,newMinute).toString())
+                                    data.activeTimeEnd = Time.valueOf(LocalTime.of(newHour,newMinute).toString())
                                     myAdapter.notifyItemChanged(position)
                                 },
                                 hour,minute,true)
@@ -107,12 +111,25 @@ class AlarmListFragment : Fragment() {
                             }
                         }
 
-                        override fun onAddButtonClick(data: AlarmData) {
-                            val params = bundleOf("AlarmID" to data.id )
-                            myModel.newData()
-                            myAdapter.notifyItemRangeChanged(data.id,2)
-                            // 画面遷移処理
-                            findNavController().navigate(R.id.action_alarmListFragment_to_mapFragment, params)
+                        override fun onAddButtonClick() {
+                            val newData = AlarmData(0, Time.valueOf("00:00:00"), Time.valueOf("00:00:00"),
+                                activeOnSunday = true,
+                                activeOnMonday = true,
+                                activeOnTuesday = true,
+                                activeOnWednesday = true,
+                                activeOnThursday = true,
+                                activeOnFriday = true,
+                                activeOnSaturday = true,
+                                latitude = 0.0,
+                                longitude = 0.0,
+                                isActive = true,
+                                isAlreadyDone = false)
+                            myModel.insert(newData).observe(viewLifecycleOwner){
+                                val params = bundleOf("AlarmID" to it.toInt() )
+                                // 画面遷移処理
+                                findNavController().navigate(R.id.action_alarmListFragment_to_mapFragment, params)
+                                myAdapter.notifyItemRangeChanged(myAdapter.itemCount,2)
+                            }
                         }
                     }
                 )

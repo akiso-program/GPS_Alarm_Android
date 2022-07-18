@@ -9,23 +9,20 @@ import java.util.*
 @Entity
 data class AlarmData(
     @PrimaryKey(autoGenerate = true) var id: Int = 0,
-    @ColumnInfo(name = "active_time_start") var activeTimeStart: Time = Time.valueOf("00:00"),
-    @ColumnInfo(name = "active_time_end") var activeTimeEnd: Time = Time.valueOf("00:00"),
-    @ColumnInfo(name = "active_on_sunday") var activeOnSunday: Boolean = true,
-    @ColumnInfo(name = "active_on_monday") var activeOnMonday: Boolean = true,
-    @ColumnInfo(name = "active_on_tuesday") var activeOnTuesday: Boolean = true,
-    @ColumnInfo(name = "active_on_wednesday") var activeOnWednesday: Boolean = true,
-    @ColumnInfo(name = "active_on_thursday") var activeOnThursday: Boolean = true,
-    @ColumnInfo(name = "active_on_friday") var activeOnFriday: Boolean = true,
-    @ColumnInfo(name = "active_on_saturday") var activeOnSaturday: Boolean = true,
-    @ColumnInfo(name = "latitude") var latitude: Double = 0.0,
-    @ColumnInfo(name = "longitude") var longitude: Double = 0.0,
-    @ColumnInfo(name = "is_active") var isActive: Boolean = true,
-    @ColumnInfo(name = "is_already_done") var isAlreadyDone: Boolean = false,
+    @ColumnInfo(name = "active_time_start") var activeTimeStart: Time,
+    @ColumnInfo(name = "active_time_end") var activeTimeEnd: Time,
+    @ColumnInfo(name = "active_on_sunday") var activeOnSunday: Boolean,
+    @ColumnInfo(name = "active_on_monday") var activeOnMonday: Boolean,
+    @ColumnInfo(name = "active_on_tuesday") var activeOnTuesday: Boolean,
+    @ColumnInfo(name = "active_on_wednesday") var activeOnWednesday: Boolean,
+    @ColumnInfo(name = "active_on_thursday") var activeOnThursday: Boolean,
+    @ColumnInfo(name = "active_on_friday") var activeOnFriday: Boolean,
+    @ColumnInfo(name = "active_on_saturday") var activeOnSaturday: Boolean,
+    @ColumnInfo(name = "latitude") var latitude: Double,
+    @ColumnInfo(name = "longitude") var longitude: Double,
+    @ColumnInfo(name = "is_active") var isActive: Boolean,
+    @ColumnInfo(name = "is_already_done") var isAlreadyDone: Boolean,
 ){
-    @Ignore
-    constructor() : this(0)
-
     override fun toString(): String = id.toString()
     fun startToCalendar():Calendar{
         return Calendar.Builder().apply {
