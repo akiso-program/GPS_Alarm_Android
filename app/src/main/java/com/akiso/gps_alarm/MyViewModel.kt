@@ -24,7 +24,7 @@ class MyViewModel (application: Application):
             }
         }
     }
-    fun getById(id:Int):AlarmData?{
+    fun getById(id:Long):AlarmData?{
         data.value?.forEach {
             if(it.id == id)return it
         }
@@ -41,6 +41,9 @@ class MyViewModel (application: Application):
         viewModelScope.launch {
             withContext(Dispatchers.IO) {
                 dao.delete(data)
+                val lst = this@MyViewModel.data.value?.toMutableList()
+                lst?.remove(data)
+                this@MyViewModel.data.postValue(lst)
             }
         }
     }
@@ -49,6 +52,9 @@ class MyViewModel (application: Application):
         viewModelScope.launch {
             withContext(Dispatchers.IO) {
                 result.postValue(dao.insert(data))
+                val lst = this@MyViewModel.data.value?.toMutableList()
+                lst?.add(data)
+                this@MyViewModel.data.postValue(lst)
             }
         }
         return result

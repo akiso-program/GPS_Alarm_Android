@@ -59,14 +59,14 @@ class MapFragment : Fragment() {
             requestPermission.launch(Manifest.permission.ACCESS_FINE_LOCATION)
         }
 
-        val id : Int = (arguments?.get("AlarmID")?:0) as Int
+        val id : Long = (arguments?.get("AlarmID")?:0) as Long
         myModel.getById(id).apply {
             this?.also {
                 alarmData = it
             }
             this?: run {
                 /// TODO: データがないとき
-                findNavController().navigate(R.id.action_mapFragment_to_alarmListFragment)
+                parentFragmentManager.popBackStack()
             }
         }
         return inflater.inflate(R.layout.fragment_map, container, false)
@@ -84,14 +84,14 @@ class MapFragment : Fragment() {
             }
 
             override fun onMenuItemSelected(menuItem: MenuItem): Boolean {
-                when (menuItem.itemId) {
+                return when (menuItem.itemId) {
                     R.id.save -> {
                         alarmData.setLocation(newLocation)
                         findNavController().navigate(R.id.action_mapFragment_to_alarmListFragment)
-                        return false
+                        return true
                     }
+                    else -> false
                 }
-                return true
             }
         }, viewLifecycleOwner, Lifecycle.State.RESUMED)
     }

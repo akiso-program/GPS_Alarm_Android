@@ -5,12 +5,6 @@
 
     <!-- Always include this permission -->
     <!-- Include only if your app benefits from precise location access. -->
-    <uses-permission android:name="android.permission.SCHEDULE_EXACT_ALARM" />
-    <uses-permission android:name="android.permission.ACCESS_BACKGROUND_LOCATION" />
-    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
-    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
-    <uses-permission android:name="android.permission.FOREGROUND_SERVICE"/>
-
     <application
         android:allowBackup="true"
         android:dataExtractionRules="@xml/data_extraction_rules"
@@ -21,6 +15,12 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.GPS_Alarm"
         tools:targetApi="31">
+        <activity
+            android:name=".AlarmActivity"
+            android:configChanges="orientation|keyboardHidden|screenSize"
+            android:exported="false"
+            android:label="@string/title_activity_alarm"
+            android:theme="@style/Theme.GPS_Alarm.Fullscreen" />
         <activity
             android:name=".MainActivity"
             android:exported="true"
@@ -40,5 +40,16 @@
             android:name=".GpsAlarmService"
             android:enabled="true"
             android:exported="false" />
-    </application> <!-- Required only when requesting background location access on Android 10 (API level 29) and higher. -->
+        <service
+            android:name=".MainServiceStartService"
+            android:enabled="true"
+            android:exported="false" />
+    </application>
+    <uses-permission android:name="android.permission.ACCESS_BACKGROUND_LOCATION" />
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+
+    <uses-permission android:name="android.permission.SCHEDULE_EXACT_ALARM" />
+
 </manifest>

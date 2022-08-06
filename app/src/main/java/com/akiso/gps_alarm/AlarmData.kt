@@ -8,7 +8,7 @@ import java.util.*
 
 @Entity
 data class AlarmData(
-    @PrimaryKey(autoGenerate = true) var id: Int = 0,
+    @PrimaryKey(autoGenerate = true) var id: Long = 0,
     @ColumnInfo(name = "active_time_start") var activeTimeStart: Time,
     @ColumnInfo(name = "active_time_end") var activeTimeEnd: Time,
     @ColumnInfo(name = "active_on_sunday") var activeOnSunday: Boolean,
@@ -50,10 +50,10 @@ interface AlarmDao{
     fun getAll(): List<AlarmData>
 
     @Query("SELECT * FROM alarmData WHERE id IN (:ids)")
-    fun loadAllByIds(ids: IntArray): List<AlarmData>
+    fun loadAllByIds(ids: LongArray): List<AlarmData>
 
     @Query("SELECT * FROM alarmData WHERE id IS (:id)")
-    fun loadById(id: Int): AlarmData?
+    fun loadById(id: Long): AlarmData?
 
     @Query("SELECT * FROM alarmData WHERE active_on_sunday IS 1 AND is_active IS 1 ORDER BY active_time_start")
     fun getActiveDataOnSunday(): List<AlarmData>

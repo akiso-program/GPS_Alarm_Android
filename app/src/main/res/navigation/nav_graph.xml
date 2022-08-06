@@ -24,7 +24,6 @@
             app:destination="@id/alarmListFragment" />
         <argument
             android:name="AlarmID"
-            app:argType="integer"
-            android:defaultValue="0" />
+            app:argType="long" />
     </fragment>
 </navigation>

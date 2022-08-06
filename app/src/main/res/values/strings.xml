@@ -19,4 +19,8 @@
     <string name="saturday">Sat</string>
     <string name="floatingActionButton">FloatingActionButton</string>
     <string name="save">Save</string>
+    <string name="title_activity_alarm">AlarmActivity</string>
+    <string name="dummy_button">Dummy Button</string>
+    <string name="dummy_content">DUMMY\nCONTENT</string>
+    <string name="stop">STOP</string>
 </resources>

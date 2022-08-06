@@ -52,6 +52,7 @@ class MyItemRecyclerViewAdapter(
             holder.locateImage.setOnClickListener {
                 listener.onLocationImageClick(item); notifyItemChanged(position)
             }
+
             holder.daysTexts.forEachIndexed { index, textView ->
                 fun changeButton(active: Boolean) {
                     if (active) {
@@ -132,6 +133,7 @@ class MyItemRecyclerViewAdapter(
         fun onEndTimeClick(data: AlarmData,position:Int)
         fun onDayClick(data: AlarmData, index:Int)
         fun onAddButtonClick()
+        fun onFlingToSide(data: AlarmData, index: Int)
     }
 
     fun setOnBookCellClickListener(listener: OnCellClickListener) {

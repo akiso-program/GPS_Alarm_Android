@@ -4,6 +4,7 @@ import android.annotation.SuppressLint
 import android.app.AlarmManager
 import android.app.PendingIntent
 import android.app.TimePickerDialog
+import android.content.AbstractThreadedSyncAdapter
 import android.content.Context
 import android.content.Context.ALARM_SERVICE
 import android.content.Intent
@@ -33,6 +34,8 @@ class AlarmListFragment : Fragment() {
 
     private var columnCount = 1
     private val myModel : MyViewModel by activityViewModels()
+    private lateinit var alarmData: MutableList<AlarmData>
+    private lateinit var myAdapter: MyItemRecyclerViewAdapter
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -40,6 +43,7 @@ class AlarmListFragment : Fragment() {
         arguments?.let {
             columnCount = it.getInt(ARG_COLUMN_COUNT)
         }
+        alarmData = mutableListOf()
     }
 
     override fun onCreateView(
@@ -47,15 +51,13 @@ class AlarmListFragment : Fragment() {
         savedInstanceState: Bundle?,
     ): View? {
         val view = inflater.inflate(R.layout.fragment_alarm_list, container, false)
-        val alarmData:MutableList<AlarmData> = mutableListOf()
-        val myAdapter = MyItemRecyclerViewAdapter(alarmData)
 
+        myAdapter = MyItemRecyclerViewAdapter(alarmData)
         myModel.data.observe(viewLifecycleOwner) {
             it.forEach(alarmData::add)
             myAdapter.notifyItemRangeChanged(0,it.size)
         }
         myModel.getAll()
-
         // Set the adapter
         if (view is RecyclerView) {
             with(view) {
@@ -75,28 +77,28 @@ class AlarmListFragment : Fragment() {
                             val calender = data.startToCalendar()
                             val hour = calender.get(Calendar.HOUR_OF_DAY)
                             val minute = calender.get(Calendar.MINUTE)
-                            val dialog = TimePickerDialog(
+                            TimePickerDialog(
                                 requireContext(),
                                 { _, newHour, newMinute ->
                                     data.activeTimeStart = Time.valueOf(LocalTime.of(newHour,newMinute).toString())
                                     myAdapter.notifyItemChanged(position)
+                                    myModel.update(data)
                                 },
-                                hour,minute,true)
-                            dialog.show()
+                                hour,minute,true).show()
                         }
 
                         override fun onEndTimeClick(data: AlarmData,position: Int) {
                             val calender = data.endToCalendar()
                             val hour = calender.get(Calendar.HOUR_OF_DAY)
                             val minute = calender.get(Calendar.MINUTE)
-                            val dialog = TimePickerDialog(
+                            TimePickerDialog(
                                 requireContext(),
                                 { _, newHour, newMinute ->
                                     data.activeTimeEnd = Time.valueOf(LocalTime.of(newHour,newMinute).toString())
                                     myAdapter.notifyItemChanged(position)
+                                    myModel.update(data)
                                 },
-                                hour,minute,true)
-                            dialog.show()
+                                hour,minute,true).show()
                         }
 
                         override fun onDayClick(data: AlarmData, index: Int) {
@@ -109,6 +111,7 @@ class AlarmListFragment : Fragment() {
                                 Calendar.FRIDAY -> data.activeOnFriday = !data.activeOnFriday
                                 Calendar.SATURDAY -> data.activeOnSaturday = !data.activeOnSaturday
                             }
+                            myModel.update(data)
                         }
 
                         override fun onAddButtonClick() {
@@ -125,11 +128,15 @@ class AlarmListFragment : Fragment() {
                                 isActive = true,
                                 isAlreadyDone = false)
                             myModel.insert(newData).observe(viewLifecycleOwner){
-                                val params = bundleOf("AlarmID" to it.toInt() )
+                                val params = bundleOf("AlarmID" to it )
                                 // 画面遷移処理
                                 findNavController().navigate(R.id.action_alarmListFragment_to_mapFragment, params)
                                 myAdapter.notifyItemRangeChanged(myAdapter.itemCount,2)
                             }
+                        }
+
+                        override fun onFlingToSide(data: AlarmData, index: Int) {
+                            myModel.delete(data)
                         }
                     }
                 )
