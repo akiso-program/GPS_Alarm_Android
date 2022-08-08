@@ -15,6 +15,7 @@ import java.sql.Time
 import java.time.LocalTime
 import java.util.*
 
+
 class GpsAlarmStartService : Service(){
 
     override fun onBind(intent: Intent): IBinder {
@@ -181,32 +182,13 @@ class GpsAlarmService : Service() {
         ) {
             return START_REDELIVER_INTENT
         }
-        var allDone = false
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(this)
         val locationCallback = object : LocationCallback() {
             override fun onLocationResult(p0: LocationResult) {
                 for (location in p0.locations){
-                    val data = getActiveData(Calendar.getInstance()).filter { !it.isAlreadyDone }
-                    if(data.isEmpty()){
-                        fusedLocationClient.removeLocationUpdates(this)
-                        stopForeground(STOP_FOREGROUND_REMOVE)
-                        val nextData = getNextStart(getActiveData(Calendar.getInstance()))
-                        nextData?.also {
-                            // startMainService(nextData)
-                            val serviceIntent = Intent(baseContext, GpsAlarmStartService::class.java)
-                            val pendingIntent = PendingIntent.getActivity(baseContext,0,serviceIntent,
-                                PendingIntent.FLAG_UPDATE_CURRENT)
-                            val alarm = baseContext.getSystemService(ALARM_SERVICE) as AlarmManager?
-                            val calendar: Calendar = Calendar.getInstance().apply {
-                                set(Calendar.HOUR_OF_DAY, nextData.startToCalendar().get(Calendar.HOUR_OF_DAY))
-                                set(Calendar.MINUTE, nextData.startToCalendar().get(Calendar.MINUTE))
-                                set(Calendar.SECOND, 0) //0秒
-                                set(Calendar.MILLISECOND, 0) //カンマ0秒
-                            }
-                            alarm?.setExact(AlarmManager.RTC_WAKEUP,calendar.timeInMillis, pendingIntent)
-                        }
-                    }else{
-                        data.forEach {
+                    getActiveData(Calendar.getInstance())
+                        .filter { !it.isAlreadyDone }
+                        .forEach {
                             val targetLocation = Location("").apply {
                                 latitude = it.latitude
                                 longitude = it.longitude
@@ -215,9 +197,18 @@ class GpsAlarmService : Service() {
                             if(distance < 100){
                                 //alarm
                                 Log.d(this.javaClass.name, "${location.latitude} , ${location.longitude}")
+                                val intent = Intent(application, AlarmActivity::class.java)
+                                val pendingIntent = PendingIntent.getActivity(
+                                    application,
+                                    777,
+                                    intent,
+                                    PendingIntent.FLAG_UPDATE_CURRENT
+                                )
+                                it.isAlreadyDone = true
+                                setData(it)
+                                pendingIntent.send()
                             }
                         }
-                    }
                 }
             }
         }
@@ -272,5 +263,8 @@ class GpsAlarmService : Service() {
             (it.activeTimeStart <= time && time <= it.activeTimeEnd) || (it.activeTimeStart == it.activeTimeEnd)
                     && !it.isAlreadyDone
         }
+    }
+    private fun setData(data:AlarmData){
+        dao.update(data)
     }
 }
