@@ -16,9 +16,11 @@
             android:id="@+id/add_button"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
+            android:insetTop="0dp"
+            android:insetBottom="0dp"
             android:text="+"
             android:textSize="60sp"
-            android:visibility="visible" />
+            android:visibility="invisible" />
 
         <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
@@ -35,26 +37,6 @@
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toEndOf="@+id/cardView"
                 app:layout_constraintTop_toTopOf="parent">
-
-                <Space
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1" />
-
-                <Space
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_weight=" 1" />
-
-                <Space
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1" />
-
-                <Space
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="2.5" />
 
                 <androidx.cardview.widget.CardView
                     android:layout_width="56dp"
@@ -75,6 +57,7 @@
                 <androidx.cardview.widget.CardView
                     android:layout_width="56dp"
                     android:layout_height="match_parent"
+                    android:layout_marginHorizontal="20dp"
                     app:cardCornerRadius="20dp">
 
                     <TextView
@@ -114,31 +97,6 @@
                 app:layout_constraintStart_toEndOf="@+id/cardView"
                 app:layout_constraintTop_toBottomOf="@+id/linearLayout">
 
-                <Space
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1" />
-
-                <Space
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1" />
-
-                <Space
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1" />
-
-                <Space
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1" />
-
-                <Space
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="2.5" />
-
                 <androidx.cardview.widget.CardView
                     android:layout_width="56dp"
                     android:layout_height="match_parent"
@@ -158,6 +116,7 @@
                 <androidx.cardview.widget.CardView
                     android:layout_width="56dp"
                     android:layout_height="match_parent"
+                    android:layout_marginHorizontal="7dp"
                     app:cardCornerRadius="20dp">
 
                     <TextView
@@ -188,6 +147,7 @@
                 <androidx.cardview.widget.CardView
                     android:layout_width="56dp"
                     android:layout_height="wrap_content"
+                    android:layout_marginHorizontal="7dp"
                     app:cardCornerRadius="20dp">
 
                     <TextView
