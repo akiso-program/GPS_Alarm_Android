@@ -13,6 +13,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.core.content.ContextCompat.getSystemService
+import androidx.core.content.ContextCompat.startForegroundService
 import androidx.core.os.bundleOf
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
@@ -150,8 +151,9 @@ class AlarmListFragment : Fragment() {
 
     @SuppressLint("UnspecifiedImmutableFlag")
     private fun setAlarmService(){
+        /*
         getNextStart(Calendar.getInstance())?.also {
-            val serviceIntent = Intent(activity, GpsAlarmStartService::class.java)
+            val serviceIntent = Intent(activity, GpsAlarmService::class.java)
             val pendingIntent = PendingIntent.getActivity(requireContext(),0,serviceIntent,PendingIntent.FLAG_UPDATE_CURRENT)
             val calendar: Calendar = Calendar.getInstance().apply {
                 set(Calendar.HOUR_OF_DAY, it.startToCalendar().get(Calendar.HOUR_OF_DAY))
@@ -162,6 +164,10 @@ class AlarmListFragment : Fragment() {
             val alarm = requireContext().getSystemService(ALARM_SERVICE) as AlarmManager?
             alarm?.setExact(AlarmManager.RTC_WAKEUP,calendar.timeInMillis, pendingIntent)
         }
+        */
+
+        val serviceIntent = Intent(activity, GpsAlarmService::class.java)
+        startForegroundService(requireContext(),serviceIntent)
     }
 
     private fun getNextStart(calendar: Calendar):AlarmData?{

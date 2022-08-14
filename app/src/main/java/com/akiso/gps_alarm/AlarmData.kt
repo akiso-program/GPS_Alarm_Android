@@ -100,7 +100,11 @@ abstract class AppDatabase : RoomDatabase() {
 
         fun getInstance(context: Context): AppDatabase {
             if (INSTANCE == null) {
-                INSTANCE = Room.databaseBuilder(context, AppDatabase::class.java, "alarm_list.db").build()
+                INSTANCE = Room.databaseBuilder(
+                    context,
+                    AppDatabase::class.java,
+                    "alarm_list.db"
+                ).build()
             }
             return INSTANCE!!
         }
